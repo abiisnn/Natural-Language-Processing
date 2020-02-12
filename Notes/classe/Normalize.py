@@ -81,20 +81,24 @@ def initializeContext(tokens, vocabulary):
 
 	return contexto
 
+#Parameters: Position of the word, size of window
+#Return: Position of begin
 def leftContextPosition(pos, window):
 	pos = pos - window
 	if(pos < 0):
 		pos = 0
 	return pos
 
+#Parameters: Position of the word, size of window, size of window
+#Return: Position of end
 def rightContextPosition(pos, window, n):
 	pos = pos + window
 	if(pos > n):
 		pos = n - 1 
 	return pos
 
-#Parameters: string: 
-#Return: 
+#Parameters: t
+#Return: list of context
 def getContext(token, positions, window, originalText):
 	context = []
 	if token in positions:
@@ -116,34 +120,25 @@ def pointProduct(a, b):
 		ans += (a[i] * b[i])
 	return ans
 
-def printContext(context):
-	for i in range(0, len(context)):
-		aux = ''
-		for j in range(0, len(context[i])):
-			aux += context[i][j] + " "
-		print(aux)
-
 def mag(v):
 	ans = 0
 	for i in range(0, len(v)):
 		ans += (v[i] * v[i])
 	return math.sqrt(ans)
 
-def createFileDic(path, dic):
+def createFileDic(path, l):
 	f = open(path, 'w')
-	for key, value in dic.items():
-		f.write(key + " ")
-		f.write(str(value))
+	for item in l:
+		f.write(str(item))
 		f.write('\n')
 	f.close()
- #    print (key, value)
-	# for word in dic:
-	# 	aux = dic[word]
-	# 	f.write(word + " ")
-	# 	f.write(aux)
-	# 	f.write('\n')
-	
-	# f.close()
+
+def printContext(context):
+	for i in range(0, len(context)):
+		aux = ''
+		for j in range(0, len(context[i])):
+			aux += context[i][j] + " "
+		print(aux)
 
 fpath = '/Users/27AGO2019/Desktop/AbiiSnn/GitHub/Natural-Language-Processing/corpus/e961024.htm'
 nameFile = '/Users/27AGO2019/Desktop/AbiiSnn/GitHub/Natural-Language-Processing/Normalize/similitud.txt'
@@ -163,8 +158,7 @@ contexts = {}
 print("Context:")
 for term in vocabulary:
 	contexts[term] = getContext(term, positions, 8, tokens)
-	print(contexts[term])
-
+	
 #Get frecuency
 vectors = {}
 for term in vocabulary:
@@ -181,32 +175,17 @@ word = "grande"
 v = vectors[word]
 for term in vocabulary:
 	vec = vectors[term]
+	similitud[term] = 0
 	if mag(v) != 0 and mag(vec) != 0:
 		cos = pointProduct(v, vec) / (mag(v) * mag(vec))
 		similitud[term] = cos
-{k: v for k, v in sorted(similitud.items(), key=lambda item: item[1])}
 
-# for i in sorted(similitud):
-# 	print((i, similitud[i]), end = " ")
+l = list()
+for key, val in similitud.items():
+	l.append((val, key))
+l.sort(reverse = True)
+print(l[:10])
 
-createFileDic(nameFile, similitud)
+createFileDic(nameFile, l)
 
-'''
-For each term, get context
-
-contexts[term] = list of context
-vectors[term] = num vector
-
-For each term, get context
-	context = contexts[term]
-	vector = []
-	for each term 
-		frec = contex.count(term)
-	vector.append(frec)
-
-vector = vectors[word]
-for each ter
-	vec = vectors[term]
-	coseno = 
-'''
 # createFile(nameFile, vocabulary)
