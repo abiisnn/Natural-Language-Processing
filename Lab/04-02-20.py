@@ -1,5 +1,5 @@
 import nltk
-from nltk.book import *
+from nltk.book
 from __future__ import division
 
 #Generar las graficas de la distribucion de frecuencia 
