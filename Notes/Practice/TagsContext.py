@@ -29,31 +29,6 @@ def getTokens(text):
 	tokens = nltk.word_tokenize(text)
 	return nltk.Text(tokens)	
 
-#Parameters: List of tokens
-#Return: List of clean tokens
-# def getCleanTokens(tokens):
-# 	clean = []
-# 	for token in tokens:
-# 		t = []
-# 		for char in token:
-# 			if re.match(r'[a-záéíóúñüA-ZÁÉÍÓÚÜÑ]', char):
-# 				t.append(char)
-# 		letterToken = ''.join(t)
-# 		if letterToken != '':
-# 			clean.append(letterToken)
-# 	return clean
-
-# #Parameters: List of clean tokens, language of stopwords
-# #Return: List of tokens without stopwords
-# def removeStopwords(tokens, language):
-# 	sw = stopwords.words(language)
-
-# 	cleanTokens = []
-# 	for tok in tokens:
-# 		if tok not in sw:
-# 			cleanTokens.append(tok)
-# 	return cleanTokens
-
 #Parameters: List of normalize tokens
 #Return: Set, vocabulary
 def getVocabulary(tokens, lemmas):
@@ -71,7 +46,6 @@ def getCleanTokensTags(tokens):
 	clean = []
 	for token in tokens:
 		t = []
-		l = []
 		for char in token[0]:
 			if re.match(r'[a-záéíóúñüA-ZÁÉÍÓÚÜÑ]', char):
 				t.append(char)
@@ -79,11 +53,10 @@ def getCleanTokensTags(tokens):
 
 		if len(token[1]) > 0:
 			tag = token[1]
-			tag = tag[0]
+			tag = tag[0].lower()
 
 		if letterToken != '':
-			l.append(letterToken)
-			l.append(tag)
+			l = (letterToken, tag)
 			clean.append(l)
 	return clean
 
@@ -94,10 +67,9 @@ def removeStopwords(tokens, language):
 
 	cleanTokens = []
 	for tok in tokens:
-		l = []
+		l = ()
 		if tok[0] not in sw:
-			l.append(tok[0])
-			l.append(tok[1])
+			l = (tok[0], tok[1])
 			cleanTokens.append(l)
 	return cleanTokens
 
@@ -105,7 +77,7 @@ def removeStopwords(tokens, language):
 #				     GET TAGS SPEECH
 ##############################################################
 def createFileCombinedTagger(fname):
-	default_tagger=nltk.DefaultTagger('V')
+	default_tagger = nltk.DefaultTagger('V')
 	patterns = [ (r'.*o$', 'NMS'), # noun masculine singular
                (r'.*os$', 'NMP'), # noun masculine plural
                (r'.*a$', 'NFS'),  # noun feminine singular
@@ -149,23 +121,20 @@ def getTag(word):
 		c = word[0]
 	return c.lower()
 
-# Return: Dictionary of list of size 2: [word, tag]
+# Return: Dictionary 
 def createDicLemmas(tokensLemmas):
+	print("Tokens lemmas size:")
+	print(len(tokensLemmas))
 	lemmas = {}
-	t = 0 # t: type of operation
-	for token in tokensLemmas:
-		if token[0] != '[':
-			if t == 0: # Is the first word
-				word = getWord(token)
-			if t == 1: # Is the tag
-				tag = getTag(token) #Get tag in lowercase 
-			if t == 2:
-				l = []
-				l.append(word)
-				l.append(tag)
-				lemmas[l] = token
-			t = t + 1
-			t = t % 3
+	j = 0
+	for i in range(0, len(tokensLemmas)- 2, 3):
+		word = tokensLemmas[i]
+		tag = tokensLemmas[i+1]
+		val = tokensLemmas[i+2]
+		l = (word, tag[0].lower())
+		lemmas[l] = val
+		j = j+1
+	print("Iteraciones: " + str(j))
 	return lemmas
 
 ##############################################################
@@ -235,8 +204,7 @@ def getFrecuency(vocabulary, contexts, lemmas):
 			#frec = context.count(t)
 			for c in context:
 				if c in lemmas:
-					lemm = lemmas[c]
-					if t == lemm:
+					if t == lemmas[c]:
 						frec = frec + 1
 			vector.append(frec)
 		vectors[term] = vector
@@ -250,12 +218,23 @@ def getSimilitud(vocabulary, vectors, lemma):
 	if lemma in vectors:
 		v = vectors[lemma]
 		for term in vocabulary:
-			vec = vectors[term]
 			similitud[term] = 0
-			if mag(v) != 0 and mag(vec) != 0:
-				cos = pointProduct(v, vec) / (mag(v) * mag(vec))
-				similitud[term] = cos
+			if term in vectors:
+				vec = vectors[term]
+				if mag(v) != 0 and mag(vec) != 0:
+					cos = pointProduct(v, vec) / (mag(v) * mag(vec))
+					similitud[term] = cos
 	return similitud
+
+def getWords(fpath, code):
+	f = open(fpath, encoding = code) #Cod: utf-8, latin-1
+	text = f.read()
+	f.close()
+
+	words = re.sub(" ", " ",  text).split()
+	# words = text.words(fname)
+	# words = list(words) #Convertir a lista de palabras
+	return words
 
 ################################################
 ################################################
@@ -263,15 +242,20 @@ def getSimilitud(vocabulary, vectors, lemma):
 
 # nameFile = '/Users/27AGO2019/Desktop/AbiiSnn/GitHub/Natural-Language-Processing/Normalize/similitudTags.txt'
 # Get Tokens by Generate.txt to create dictionary of lemmas
-textLemmas = getText(fpathLemmas, code)
-tokensLemmas = getTokens(textLemmas)
-print("LEMMAS tokens")
-print(tokensLemmas[:10])
+fpathLemmas = '/Users/27AGO2019/Desktop/AbiiSnn/GitHub/Natural-Language-Processing/Normalize/generate1.txt'
+fpathName = 'generate1.txt'
+code = 'ISO-8859-1'
+textLemmas = getWords(fpathLemmas, code)
+print(textLemmas[:20])
 
-# Get dictionary of tuples of Lemmas
-lemmas = createDicLemmas(tokensLemmas)
+# Get dictionary of tuples of 
+lemmas = {}
+lemmas = createDicLemmas(textLemmas)
 print("dictionary of lemmas:")
-print(lemmas[:10])
+lemmas[("abaláncenosla", "v")]
+lemmas[("zutano", "n")]
+lemmas[("rasante", "a")]
+
 
 # Read file of corpus
 fpath = '/Users/27AGO2019/Desktop/AbiiSnn/GitHub/Natural-Language-Processing/corpus/e961024.htm'
@@ -301,6 +285,8 @@ print(tokens[:10])
 
 # Get vocabulary of lemmas
 vocabulary = getVocabulary(tokens, lemmas)
+print("vocabulary:")
+print(vocabulary[:10])
 
 #Get contexts
 positions = initializeContext(tokens, vocabulary, lemmas) #Initialize Context
@@ -313,15 +299,21 @@ print(contexts[:10])
 
 #Get frecuency, vectors = {}
 vectors = getFrecuency(vocabulary, contexts, lemmas)
+print("frecuency:")
+print(vectors[:10])
 
 # Find lemma of my word
 word = "grande"
 l.append(word)
 l.append("a")
+lemmas[("grande", "a")]
 if l in lemmas:
 	w = lemmas[l]
+
 #Get List
 similitud = getSimilitud(vocabulary, vectors, word)
+print("Similitud:")
+print(similitud[:10])
 
 #language = 'spanish'
 #tokens = removeStopwords(cleanTokens, language)
