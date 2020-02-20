@@ -1,11 +1,7 @@
-- Hacer tags
-- Usar archivo generate.txt 
-	abalánc#emele [me] [le] V0R03S0 abalanzar
+19 de Febrero 2020
+- Hacer stemming con SnowballStemmer ("spanish")
+- Implemetar frecuencia normalizada (Probabilidad).
+	
+	1. Stemming de Snowball + frec original
+	2. Stemming de Snowball + probabilidad
 
-	lemas_dict['abalancemele v']  = abalanzar
-- Si la palabra esta en una stopwords ignorarla
-- Se etiqueta sin html, tdo lo demás se pone
-- Después quitamos simbolos de puntuación y stopwords
-- Cambiar las palabras por sus lemas:
-aplica v ----> aplicar v
-los que no estén dejar igual
