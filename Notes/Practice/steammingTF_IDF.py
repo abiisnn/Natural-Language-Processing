@@ -162,15 +162,7 @@ def getFrecuency(vocabulary, contexts, k, documentFreq):
 		for t in vocabulary:
 			frec = context.count(t)
 			vector.append(frec)
-
-		sumVector = sumElements(vector)
-		newFrecuency = []
-		for t in vector:
-			frec = 0
-			if sumVector != 0:
-				frec = t / sumVector
-			newFrecuency.append(frec)
-		vectors[term] = newFrecuency
+		vectors[term] = vector
 
 	# Getting TF dictionary:
 	TF = {}
@@ -282,7 +274,7 @@ positions = initializeContext(tokens, vocabulary) #Initialize Context
 contexts = {}
 print(" Getting Context:")
 for term in vocabulary:
-	contexts[term] = getContext(term, positions, 4, tokens)
+	contexts[term] = getContext(term, positions, 8, tokens)
 	
 # Getting Document frecuency for each word
 documentFreq = {}
@@ -297,7 +289,7 @@ documentFreq = getDocumentFrecuency(vocabulary, contexts)
 # 		break
 
 #Get frecuency, vectors = {}
-k = 0.7
+k = 1.2
 vectors = {}
 vectors = getFrecuency(vocabulary, contexts, k, documentFreq)
 
