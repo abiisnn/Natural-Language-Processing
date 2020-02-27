@@ -179,7 +179,7 @@ def getFrecuency(vocabulary, contexts, k, documentFreq):
 	for term in vocabulary:
 		frec = 0
 		if documentFreq[term] != 0:
-			frec = math.log(len(vocabulary)) / documentFreq[term]
+			frec = math.log((len(vocabulary) + 1) / documentFreq[term])
 		IDF.append(frec)
 
 	# Gettin tf - IDF = tf * IDF

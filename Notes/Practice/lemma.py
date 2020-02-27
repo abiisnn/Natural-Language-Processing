@@ -34,9 +34,10 @@ def getTokens(text):
 def getVocabulary(tokens, lemmas):
 	l = []
 	for token in tokens:
+		lemma = token[0]
 		if token in lemmas:
-			l.append(lemmas[token])
-
+			lemma = lemmas[token]
+		l.append(lemma)
 	vocabulary = sorted(set(l))
 	return vocabulary
 
@@ -74,51 +75,30 @@ def removeStopwords(tokens, language):
 	return cleanTokens
 
 ##############################################################
-#				     GET TAGS SPEECH
+#						TAGGING
 ##############################################################
-def createFileCombinedTagger(fname):
-	default_tagger = nltk.DefaultTagger('V')
-	patterns = [ (r'.*o$', 'NMS'), # noun masculine singular
-               (r'.*os$', 'NMP'), # noun masculine plural
-               (r'.*a$', 'NFS'),  # noun feminine singular
-               (r'.*as$', 'NFP')  # noun feminine singular
+def make_and_save_combined_tagger(fname):
+    default_tagger = nltk.DefaultTagger('v')
+    patterns = [ (r'.*o$', 'n'),   # noun masculine singular
+               	 (r'.*os$', 'n'),  # noun masculine plural
+                 (r'.*a$', 'n'),   # noun feminine singular
+                 (r'.*as$', 'n')   # noun feminine singular
                ]
-	regexpTagger = nltk.RegexpTagger(patterns, backoff = default_tagger)
-	cessTagged = cess_esp.tagged_sents()
-	combinedTagger = nltk.UnigramTagger(cessTagged, backoff = regexpTagger)
-	output = open(fname, 'wb')
-	dump(combinedTagger, output, -1)
-	output.close()
+    regexp_tagger = nltk.RegexpTagger(patterns, backoff=default_tagger)
+    cess_tagged_sents = cess_esp.tagged_sents()
+    combined_tagger = nltk.UnigramTagger(cess_tagged_sents, backoff=regexp_tagger)
+    
+    output = open(fname, 'wb')
+    dump(combined_tagger, output, -1)
+    output.close()
 
-def tag(fname, tokens):
-	input = open(fname, 'rb')
-	defaultTagger = load(input)
-	input.close()
+def tag(fname, text):
+    input = open(fname, 'rb')
+    default_tagger = load(input)
+    input.close()
 
-	text = []
-	for token in tokens:
-		tagged = defaultTagger.tag(tokens)
-		text.append(tagged)
-		# print(tagged)
-	print("Type of tagged: I supposed is a tuple")
-	print(type(tagged))
-
-	return text
-
-def tag_with_pos_tag_function_nltk(tokens):
-	tagged = nltk.pos_tag(tokens)
-	return tagged
-
-def cleanTags(tagged):
-	text = []
-	for t in tagged:
-		if t[1] is None:
-			tag = "v"
-		else:
-			tag = t[1][0].lower()
-		t = (t[0], tag)
-		text.append(t)
-	return text
+    s_tagged = default_tagger.tag(text)
+    return s_tagged
 
 ##############################################################
 #				     		LEMMAS
@@ -138,8 +118,6 @@ def getTag(word):
 
 # Return: Dictionary 
 def createDicLemmas(tokensLemmas):
-	print("Tokens lemmas size:")
-	print(len(tokensLemmas))
 	lemmas = {}
 	j = 0
 	for i in range(0, len(tokensLemmas)- 2, 3):
@@ -149,8 +127,8 @@ def createDicLemmas(tokensLemmas):
 		l = (word, tag[0].lower())
 		lemmas[l] = val
 		j = j+1
-	print("Iteraciones: " + str(j))
 	return lemmas
+
 
 ##############################################################
 #						CONTEXT
@@ -165,10 +143,11 @@ def initializeContext(tokens, vocabulary, lemmas):
 
 	for i in range(len(tokens)):
 		token = tokens[i]
+		lemma = token[0]
 		if token in lemmas:
 			lemma = lemmas[token]
-			if lemma in contexto:
-				contexto[lemma].append(i)
+		if lemma in contexto:
+			contexto[lemma].append(i)
 	return contexto
 
 #Parameters: Position of the word, size of window
@@ -229,10 +208,10 @@ def mag(v):
 ##############################################################
 #						FRECUENCY
 ##############################################################
-
 def getFrecuency(vocabulary, contexts, lemmas):
 	vectors = {}
 	for term in vocabulary:
+		print(term)
 		context = contexts[term] #Its a list
 		vector = []
 		for t in vocabulary:
@@ -242,6 +221,23 @@ def getFrecuency(vocabulary, contexts, lemmas):
 				if c in lemmas:
 					if t == lemmas[c]:
 						frec = frec + 1
+			vector.append(frec)
+		vectors[term] = vector
+	return vectors
+def getFrecuency(vocabulary, contexts, lemmas):
+	vectors = {}
+	for term in vocabulary:
+		context = contexts[term] #Its a list
+		vector = []
+		for t in vocabulary:
+			frec = 0
+			#frec = context.count(t)
+			for c in context:
+				lemma = c[0]
+				if c in lemmas:
+					lemma = lemmas[c]
+				if t == lemma:
+					frec = frec + 1
 			vector.append(frec)
 		vectors[term] = vector
 	return vectors
@@ -299,14 +295,23 @@ def printContext(context):
 		for j in range(0, len(context[i])):
 			aux += context[i][j] + " "
 		print(aux)
+
+def printDictionary(dic, n):
+	i = 0
+	for j in dic:
+		print(j, dic[j])
+		i = i + 1
+		if i > n:
+			break
 ################################################
 ################################################
 ################################################
 
 # nameFile = '/Users/27AGO2019/Desktop/AbiiSnn/GitHub/Natural-Language-Processing/Normalize/similitudTags.txt'
 # Get Tokens by Generate.txt to create dictionary of lemmas
-fpathLemmas = '/Users/27AGO2019/Desktop/AbiiSnn/GitHub/Natural-Language-Processing/Normalize/generate1.txt'
-fpathName = 'generate1.txt'
+fpathLemmas = '/Users/27AGO2019/Desktop/AbiiSnn/GitHub/Natural-Language-Processing/Normalize/generateClean.txt'
+fpathName = 'generateClean.txt'
+nameFile = '/Users/27AGO2019/Desktop/AbiiSnn/GitHub/Natural-Language-Processing/Normalize/similitudLemma.txt'
 code = 'ISO-8859-1'
 textLemmas = getWords(fpathLemmas, code)
 print(textLemmas[:20])
@@ -315,9 +320,9 @@ print(textLemmas[:20])
 lemmas = {}
 lemmas = createDicLemmas(textLemmas)
 print("dictionary of lemmas:")
-lemmas[("abaláncenosla", "v")]
-# lemmas[("zutano", "n")]
-# lemmas[("rasante", "a")]
+lemmas[("abaláncenosla", "v")] # Check the first
+lemmas[("zutano", "n")]		   # Check the last 
+printDictionary(lemmas, 10)
 
 
 # Read file of corpus
@@ -328,19 +333,14 @@ tokensHtml = getTokens(textSource) #Get tokens with out html tags
 print("Text with tags, stopwords and punctuation:")
 print(tokensHtml[:10])
 
-#Tagging
-fnameCombinedTagger = '/Users/27AGO2019/Desktop/AbiiSnn/GitHub/Natural-Language-Processing/Normalize/combinedTagger.pkl'
-# createFileCombinedTagger(fnameCombinedTagger)
-text = tag(fnameCombinedTagger, tokensHtml)
-#text = tag_with_pos_tag_function_nltk(tokensHtml)
-print("text with tags:")
-print(text[:20])
-
-textTags = cleanTags(text)
-print(textTags[:10])
+# Tagging
+fcombinedTagger = '/Users/27AGO2019/Desktop/AbiiSnn/GitHub/Natural-Language-Processing/pkl/combined_tagger.pkl'
+#make_and_save_combined_tagger(fcombinedTagger)
+textTagged = tag(fcombinedTagger, tokensHtml)
+print(textTagged[:10])
 
 # Text in list with lists of size 2
-cleanTokens = getCleanTokensTags(text)
+cleanTokens = getCleanTokensTags(textTagged)
 print("text with tags corrected:")
 print(cleanTokens[:10])
 
@@ -350,42 +350,26 @@ tokens = removeStopwords(cleanTokens, language)
 print("Text without stopwords:")
 print(tokens[:50])
 
-i = 0
-for j in lemmas:
-	print(j, lemmas[j])
-	i = i + 1
-	if i > 50:
-		break
-
-
 # Get vocabulary of lemmas
 vocabulary = getVocabulary(tokens, lemmas)
 print("vocabulary:")
-print(vocabulary[:10])
+print(vocabulary[:100])
 
 #Get contexts
 positions = initializeContext(tokens, vocabulary, lemmas) #Initialize Context
+printDictionary(positions, 100)
 
 contexts = {}
 for term in vocabulary:
 	contexts[term] = getContext(term, positions, 4, tokens, vocabulary)
 print("Context:")
-i = 0
-for j in contexts:
-	print(j, contexts[j])
-	i = i + 1
-	if i > 20:
-		break
+printDictionary(contexts, 10)
 
 #Get frecuency, vectors = {}
+vectors = {}
 vectors = getFrecuency(vocabulary, contexts, lemmas)
 print("frecuency:")
-i = 0
-for j in vectors:
-	print(j, vectors[j])
-	i = i + 1
-	if i > 10:
-		break
+printDictionary(vectors, 10)
 
 # Find lemma of my word
 word = "grande"
@@ -397,12 +381,7 @@ if l in lemmas:
 #Get List
 similitud = getSimilitud(vocabulary, vectors, word)
 print("Similitud:")
-i = 0
-for j in similitud:
-	print(j, similitud[j])
-	i = i + 1
-	if i > 10:
-		break
+printDictionary(similitud, 10)
 
 l = list()
 for key, val in similitud.items():
@@ -410,7 +389,7 @@ for key, val in similitud.items():
 l.sort(reverse = True)
 print(l[:10])
 
-nameFile = '/Users/27AGO2019/Desktop/AbiiSnn/GitHub/Natural-Language-Processing/Normalize/similitudTags.txt'
+nameFile = '/Users/27AGO2019/Desktop/AbiiSnn/GitHub/Natural-Language-Processing/Normalize/similitudTagsLemma.txt'
 createFileDic(nameFile, l)
 #language = 'spanish'
 #tokens = removeStopwords(cleanTokens, language)
