@@ -37,3 +37,32 @@ X_w es la variable aleatoria
 
 	4. Leer capítulo 6 y 13 del libro Text Data Management and Analysis.
 	5. Descargar paquete de python GENSIM
+
+---------------------------------------------------------
+25 de Febrero 2020
+
+Problemas de Frecuencia:
+	1. Longitud distinta de documentos: probabilidad
+	2. Palabras demasiado frecuentes en un doc: tf = BM25
+	3. Palabras comunes: idf
+
+** Adapting BM25 Retrival Model for Paradigmatic Relation Mining
+
+----------------------------------------------------------
+28 de Febrero 2020
+
+1. Relación sintagmatica utilizando BM25.
+2. Relación sintagmatica usando entropía condicional.
+
+
+Menos entropía, menos incertidumbre.
+
+Para entropía condicional.
+--- Normalizar hasta quitar html tags.
+	Tokenizar en oraciones.
+	Normalizar cada oración.
+	Poner tags.
+	Lematizar.
+	(Las oraciones salen de nltk.sent_tokenize)
+	Ya tenemos lista de oraciones normalizadas.
+	

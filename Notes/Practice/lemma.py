@@ -31,14 +31,8 @@ def getTokens(text):
 
 #Parameters: List of normalize tokens
 #Return: Set, vocabulary
-def getVocabulary(tokens, lemmas):
-	l = []
-	for token in tokens:
-		lemma = token[0]
-		if token in lemmas:
-			lemma = lemmas[token]
-		l.append(lemma)
-	vocabulary = sorted(set(l))
+def getVocabulary(tokens):
+	vocabulary = sorted(set(tokens))
 	return vocabulary
 
 #Parameters: List of tuples of tokens
@@ -129,6 +123,15 @@ def createDicLemmas(tokensLemmas):
 		j = j+1
 	return lemmas
 
+def lemmatizeText(tokens, lemmas):
+	text = []
+	for token in tokens:
+		lemma = token[0]
+		if token in lemmas:
+			lemma = lemmas[token]
+		aux = (lemma, token[1])
+		text.append(aux)
+	return text
 
 ##############################################################
 #						CONTEXT
@@ -141,13 +144,15 @@ def initializeContext(tokens, vocabulary, lemmas):
 	for word in vocabulary:
 		contexto[word] = []
 
+	# for i in range(len(tokens)):
+	# 	token = tokens[i]
+	# 	lemma = token[0]
+	# 	if token in lemmas:
+	# 		lemma = lemmas[token]
+	# 	if lemma in contexto:
+	# 		contexto[lemma].append(i)
 	for i in range(len(tokens)):
-		token = tokens[i]
-		lemma = token[0]
-		if token in lemmas:
-			lemma = lemmas[token]
-		if lemma in contexto:
-			contexto[lemma].append(i)
+		contexto[tokens[i]].append(i)
 	return contexto
 
 #Parameters: Position of the word, size of window
@@ -208,39 +213,30 @@ def mag(v):
 ##############################################################
 #						FRECUENCY
 ##############################################################
-def getFrecuency(vocabulary, contexts, lemmas):
-	vectors = {}
+
+def getIndexTuples(vocabulary):
+	index = {}
+	i = 0
 	for term in vocabulary:
-		print(term)
-		context = contexts[term] #Its a list
-		vector = []
-		for t in vocabulary:
-			frec = 0
-			#frec = context.count(t)
-			for c in context:
-				if c in lemmas:
-					if t == lemmas[c]:
-						frec = frec + 1
-			vector.append(frec)
-		vectors[term] = vector
-	return vectors
-def getFrecuency(vocabulary, contexts, lemmas):
+		index[term] = i 
+		i = i + 1
+	return index
+
+def getFrecuency(vocabulary, contexts, lemmas, indexTuples):
 	vectors = {}
+	v = []
+	for i in range(0, len(vocabulary) + 1):
+		v.append(0)
+
 	for term in vocabulary:
-		context = contexts[term] #Its a list
 		vector = []
-		for t in vocabulary:
-			frec = 0
-			#frec = context.count(t)
-			for c in context:
-				lemma = c[0]
-				if c in lemmas:
-					lemma = lemmas[c]
-				if t == lemma:
-					frec = frec + 1
-			vector.append(frec)
-		vectors[term] = vector
+		for i in range(0, len(vocabulary) + 1):
+			vector.append(0)
+		for t in contexts[term]:
+			vector[indexTuples[t]] = vector[indexTuples[t]] + 1
+		vectors[term] = vector 
 	return vectors
+
 
 ##############################################################
 #						SIMILITUD
@@ -267,6 +263,13 @@ def getWords(fpath, code):
 	# words = text.words(fname)
 	# words = list(words) #Convertir a lista de palabras
 	return words
+
+def filtredSimilitud(similitud, word):
+	sim = {}
+	for t in similitud:
+		if t[1] == word[1]:
+			sim[t] = similitud[t]
+	return sim
 
 ##############################################################
 #						CREATE FILE
@@ -307,7 +310,6 @@ def printDictionary(dic, n):
 ################################################
 ################################################
 
-# nameFile = '/Users/27AGO2019/Desktop/AbiiSnn/GitHub/Natural-Language-Processing/Normalize/similitudTags.txt'
 # Get Tokens by Generate.txt to create dictionary of lemmas
 fpathLemmas = '/Users/27AGO2019/Desktop/AbiiSnn/GitHub/Natural-Language-Processing/Normalize/generateClean.txt'
 fpathName = 'generateClean.txt'
@@ -322,8 +324,8 @@ lemmas = createDicLemmas(textLemmas)
 print("dictionary of lemmas:")
 lemmas[("abaláncenosla", "v")] # Check the first
 lemmas[("zutano", "n")]		   # Check the last 
+lemmas[("acercarnos", "v")]
 printDictionary(lemmas, 10)
-
 
 # Read file of corpus
 fpath = '/Users/27AGO2019/Desktop/AbiiSnn/GitHub/Natural-Language-Processing/corpus/e961024.htm'
@@ -348,49 +350,64 @@ print(cleanTokens[:10])
 language = 'spanish'
 tokens = removeStopwords(cleanTokens, language)
 print("Text without stopwords:")
-print(tokens[:50])
+print(tokens[:100])
+
+# Lemmatize text
+tokens = lemmatizeText(tokens, lemmas)
+print(tokens[:100])
 
 # Get vocabulary of lemmas
-vocabulary = getVocabulary(tokens, lemmas)
+vocabulary = getVocabulary(tokens)
 print("vocabulary:")
-print(vocabulary[:100])
+print(vocabulary[3100:3200])
+
+indexTuples = {}
+indexTuples = getIndexTuples(vocabulary)
+printDictionary(indexTuples, 10)
+len(indexTuples)
 
 #Get contexts
 positions = initializeContext(tokens, vocabulary, lemmas) #Initialize Context
 printDictionary(positions, 100)
+len(positions)
 
 contexts = {}
 for term in vocabulary:
 	contexts[term] = getContext(term, positions, 4, tokens, vocabulary)
 print("Context:")
-printDictionary(contexts, 10)
+printDictionary(contexts, 2)
+len(contexts)
+
 
 #Get frecuency, vectors = {}
 vectors = {}
-vectors = getFrecuency(vocabulary, contexts, lemmas)
+vectors = getFrecuency(vocabulary, contexts, lemmas, indexTuples)
 print("frecuency:")
-printDictionary(vectors, 10)
+printDictionary(vectors, 2)
+len(vectors)
 
 # Find lemma of my word
-word = "grande"
-l = (word, "a")
-lemmas[("grande", "a")]
-if l in lemmas:
-	w = lemmas[l]
+word = ('grande', 'a')
+
+lemmas[word]
 
 #Get List
+similitud = {}
 similitud = getSimilitud(vocabulary, vectors, word)
 print("Similitud:")
 printDictionary(similitud, 10)
 
+
+filtred = {}
+filtred = filtredSimilitud(similitud, word)
+print("Similitud filtrada:")
+printDictionary(filtred, 10)
+
 l = list()
-for key, val in similitud.items():
+for key, val in filtred.items():
 	l.append((val, key))
 l.sort(reverse = True)
 print(l[:10])
 
 nameFile = '/Users/27AGO2019/Desktop/AbiiSnn/GitHub/Natural-Language-Processing/Normalize/similitudTagsLemma.txt'
 createFileDic(nameFile, l)
-#language = 'spanish'
-#tokens = removeStopwords(cleanTokens, language)
-#vocabulary = getVocabulary(tokens)
