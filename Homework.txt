@@ -65,4 +65,49 @@ Para entropía condicional.
 	Lematizar.
 	(Las oraciones salen de nltk.sent_tokenize)
 	Ya tenemos lista de oraciones normalizadas.
-	
+
+------------------------------------------------------
+04 Marzo 2020
+Topic Mining and Analysis: Motivation
+* Topic = main idea discussed in text data:
+	- Theme/subject of a discussion or conversation
+	- Different granularities
+* Many applications require discovery of topics in text.
+	- What are Twuitter users talking about today.
+	- What are the current research topics in data mining? How are they differente from those 5 years ago?
+	- What do people like about the iPhone 6? What do they dislike?
+	- What were the major topics debated in 2012 presidential election?
+
+* Task of Topic Mining and Analysis
+	- Figure out which documents cover which topics.
+
+HOMEWORK:
+1. Generar la lista de frecuencia del texto. (mayor a menor)
+	- No stopwords
+	- Minuscula
+	- Lematización
+	- Filtrar por sustantivos, (sustantivos más frecuentes)
+	-------
+	vocabulario = set(tokens_normalizados)
+
+2. Generar lista de frecuencia del texto. (mayor a menor)
+	**** Cambiar IDF, como en la foto
+	palabrasNormalizado: # de palabras en el archivo normalizado
+	x: Frecuencia de la palabra
+	TF = ((k+1)x) / (x+k)
+	IDF = log(palabrasNormalizado / x)
+	TF * IDF
+
+3. 	Lista de títulos y subtitulos.
+	// Ver si beutiful Soup
+
+4. Computing Topic Coverage
+	- Segmentar archivo html en articulos.
+	- Sacar palabras lematizadas.
+	- Lemmas de articulo.
+	- Normalizar articulo.
+	- Mostrar en forma de Tabla
+	https://python-para-impacientes.blogspot.com/2017/01/tablas-con-estilo-con-tabulate.html
+
+	Heuristics: Conocimiento común. No es un modelo matematico, es un simple conocimiento que tenemos.
+	Por ejemplo, favorecer palabras en los títulos.

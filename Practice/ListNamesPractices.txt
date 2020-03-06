@@ -1,0 +1,16 @@
+1. Normalize text and get Similarity.
+2. Lematize with tags and get Similarity.
+3. Stemming with Generate and get Similarity.
+4. Similarity with stem of snowball and get Frecuency.
+5. Similarity with stemming of Snowball and Probability.
+6. Similarity with stem of Snowball and BM25 Retrieval Model.
+7. Similarity with stem of Snowball and TF-IDF.
+8. Similarity with lemmatize of generate and BM25 Retrieval Model.
+9. Syntagmatic Relations with BM25.
+10. Syntagmatic Relations with Entropy
+11. Syntagmatic Relations wiht Laplace Smoothing
+12. Rewriting Mutual Information (MI) Using KL-Divergence
+13. Most frecuent words.
+14. Most frecuent words with TF * IDF.
+15. List of titles and subtitles of a corpus by Excelsior.
+16. Computing topic Coverage.
