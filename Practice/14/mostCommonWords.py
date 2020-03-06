@@ -149,6 +149,16 @@ def getFrecuency(vocabulary, tokens):
 	
 	return mostCommon
 
+# Getting frecuency with TF - IDF
+def getTFIDF(vocabulary, frecuency, k, sizeText):
+	mostCommon = {}
+	for v in vocabulary:
+		mostCommon[v] = 0
+
+	for token in vocabulary:
+		mostCommon[token] = (((k + 1) * frecuency[token]) / (frecuency[token] + k)) * math.log((sizeText / frecuency[x]))
+	return mostCommon
+
 ##############################################################
 #							SORT
 ##############################################################
@@ -266,8 +276,12 @@ vocabulary = getVocabulary(tokens)
 print("vocabulary:")
 print(vocabulary[:10])
 
-mostCommon = {}
-mostCommon = getFrecuency(vocabulary, tokens)
+frecuency = {}
+frecuency = getFrecuency(vocabulary, tokens)
+
+k = 1.2
+mostCommon = getTFIDF(vocabulary, frecuency, k, len(tokens))
+
 printDictionary(mostCommon, 10)
 
 l = []
@@ -275,5 +289,5 @@ l = sortHL(mostCommon)
 print(l[:10])
 
 nWord = "mostCommonWords.txt"
-nameFile = '/Users/abiga/Desktop/AbiiSnn/GitHub/Natural-Language-Processing/Practice/13/'
+nameFile = '/Users/abiga/Desktop/AbiiSnn/GitHub/Natural-Language-Processing/Practice/14/'
 createFileDic(nameFile + nWord, l)
