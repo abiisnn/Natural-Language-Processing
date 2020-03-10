@@ -104,32 +104,43 @@ def getFrecuency(listTopics, article):
 	return topics
 
 # Parameters: Dictionary of frecuency for each topic
-def sumFrecuency(dicFrecuency):
+def sumFrecuency(table, j, lenTopics):
 	sum = 0
-	for frecuency in dicFrecuency:
-		sum = sum + dicFrecuency[frecuency]
+	for i in range(1, lenTopics + 1):
+		sum = sum + table[i][j]
 	return sum
 
 def initializeTable(topics, lenArticles):
 	table = []
-	for i in range(1):
-		table.append([0] * (lenArticles + 1))
+	aux = []
+	for i in range(0, lenArticles + 1):
+		aux.append(0)
+	table.append(aux)
 
-	for i in range(1, lenArticles + 1):
-		table[0][i] = i
-
-	for i in range(0, len(topics)):
+	for i in range(1, len(topics)+1):
 		aux = []
 		for j in range(0, lenArticles + 1):
 			aux.append(0)
-		aux[0] = topics[i][0]
+		aux[0] = topics[i-1][0]
 		table.append(aux)
+	
+	for i in range(1, lenArticles + 1):
+		table[0][i] = i
 
 	return table
 
-def printTable(table):
-	for t in table:
-		print(t)
+def printTable(table, show):
+	for i in range(0, 7):
+		for j in range(0, show):
+			if i == 0:
+				print(table[i][j], end = " ")
+			elif j == 0:
+				print(table[i][j], end = " ")
+			elif table[i][j] == 0:
+				print('{0:.0f}'.format(table[i][j]), end = " ")
+			else:
+				print('{0:.1f}'.format(table[i][j]), end = " ")
+		print("")
 
 ##############################################################
 #						TAGGING
@@ -241,6 +252,30 @@ def printDictionary(dic, n):
 		i = i + 1
 		if i > n:
 			break
+
+#Parameters: List
+#Return: Nothing
+def createFileTable(path, table, show):
+	f = open(path, 'w')
+	for i in range(0, 7):
+		for j in range(0, show):
+			aux = " "
+			if i == 0:
+				aux = str(table[i][j]) + " "
+				# print(table[i][j], end = " ")
+			elif j == 0:
+				aux = str(table[i][j]) + " "
+				# print(table[i][j], end = " ")
+			elif table[i][j] == 0:
+				aux = '{0:.0f}'.format(table[i][j]) + " "
+				# print('{0:.0f}'.format(table[i][j]), end = " ")
+			else:
+				aux = '{0:.1f}'.format(table[i][j]) + " "
+				# print('{0:.1f}'.format(table[i][j]), end = " ")
+			f.write(aux)
+		f.write('\n')
+	f.close()
+
 ################################################
 ################################################
 ################################################
@@ -256,10 +291,10 @@ textLemmas = getWords(fpathLemmas, code)
 # Get dictionary of tuples of 
 lemmas = {}
 lemmas = createDicLemmas(textLemmas)
-print("dictionary of lemmas:")
-lemmas[("abaláncenosla", "v")] # Check the first
-lemmas[("zutano", "n")]		   # Check the last 
-lemmas[("acercarnos", "v")]
+# print("dictionary of lemmas:")
+# lemmas[("abaláncenosla", "v")] # Check the first
+# lemmas[("zutano", "n")]		   # Check the last 
+# lemmas[("acercarnos", "v")]
 # printDictionary(lemmas, 10)
 
 # Get articles
@@ -267,7 +302,7 @@ fpath = '/Users/abiga/Desktop/AbiiSnn/GitHub/Natural-Language-Processing/corpus/
 code = 'utf-8'
 articles = getArticles(fpath, code)
 
-print(articles[2:3])
+# print(articles[2:3])
 
 # Tagging
 fcombinedTagger = '/Users/abiga/Desktop/AbiiSnn/GitHub/Natural-Language-Processing/pkl/combined_tagger.pkl'
@@ -278,14 +313,14 @@ for i in range(0, len(articles)):
 	auxTag = tag(fcombinedTagger, aux)
 	articlesTag.append(auxTag)
 
-print(articlesTag[:2])
+# print(articlesTag[:2])
 
 articleCleanTokens = []
 for i in range(0, len(articlesTag)):
 	aux = getCleanTokensTags(articlesTag[i])
 	articleCleanTokens.append(aux)
 
-print(articleCleanTokens[:2])
+# print(articleCleanTokens[:2])
 
 # Remove Stopwords
 language = 'spanish'
@@ -294,7 +329,7 @@ for i in range(0, len(articleCleanTokens)):
 	aux = removeStopwords(articleCleanTokens[i], language)
 	articleClean.append(aux)
 
-print(articleClean[:2])
+# print(articleClean[:2])
 
 # Lemmatize text
 tokens = []
@@ -302,23 +337,61 @@ for i in range(0, len(articleClean)):
 	aux = lemmatizeText(articleClean[i], lemmas)
 	tokens.append(aux)
 
-print(tokens[:2])
+# print(tokens[:2])
 
+taux = [('-------crisis', 'n'), ('privatización', 'n'), ('contaminación', 'n'), ('-----política', 'n'), ('-----economía', 'n'), ('---tecnología', 'n'), ('----televisa', 'n')]
 t = [('crisis', 'n'), ('privatización', 'n'), ('contaminación', 'n'), ('política', 'n'), ('economía', 'n'), ('tecnología', 'n'), ('televisa', 'n')]
 
-table = initializeTable(t, len(tokens))
-printTable(table)
+table = initializeTable(taux, len(tokens))
+# print(table)
+
 j = 1
 for article in tokens:
 	dicFrecuency = getFrecuency(t, article)
-	total = sumFrecuency(dicFrecuency)
 	i = 1
+	# total = sumFrecuency(dicFrecuency)
 	for frecuency in dicFrecuency:
-		ans = 0
-		if total != 0:
-			ans = dicFrecuency[frecuency] / total
-		table[i][j] = ans * 100
+		table[i][j] = dicFrecuency[frecuency]
 		i = i + 1
 	j = j + 1
 
-printTable(table)
+# print(table)
+
+j = 1
+for article in tokens:
+	total = sumFrecuency(table, j, len(t))
+	for i in range(1, len(t) + 1):
+		if total != 0:
+			table[i][j] = (table[i][j] * 100) / total 
+		else:
+			table[i][j] = 0 
+	j = j + 1
+
+# print(table)
+show = 50
+printTable(table, show)
+
+show = 10
+nWord = "10.txt"
+nameFile = '/Users/abiga/Desktop/AbiiSnn/GitHub/Natural-Language-Processing/Practice/16/'
+createFileTable(nameFile + nWord, table, show)
+
+show = 25
+nWord = "25.txt"
+nameFile = '/Users/abiga/Desktop/AbiiSnn/GitHub/Natural-Language-Processing/Practice/16/'
+createFileTable(nameFile + nWord, table, show)
+
+show = 50
+nWord = "50.txt"
+nameFile = '/Users/abiga/Desktop/AbiiSnn/GitHub/Natural-Language-Processing/Practice/16/'
+createFileTable(nameFile + nWord, table, show)
+
+show = 75
+nWord = "75.txt"
+nameFile = '/Users/abiga/Desktop/AbiiSnn/GitHub/Natural-Language-Processing/Practice/16/'
+createFileTable(nameFile + nWord, table, show)
+
+show = 77
+nWord = "77.txt"
+nameFile = '/Users/abiga/Desktop/AbiiSnn/GitHub/Natural-Language-Processing/Practice/16/'
+createFileTable(nameFile + nWord, table, show)
