@@ -51,7 +51,7 @@ def getCleanTokensTags(tokens):
 			tag = tag[0].lower()
 
 		if letterToken != '':
-			l = (letterToken, tag)
+			l = (letterToken.lower(), tag)
 			clean.append(l)
 	return clean
 
@@ -67,6 +67,69 @@ def removeStopwords(tokens, language):
 			l = (tok[0], tok[1])
 			cleanTokens.append(l)
 	return cleanTokens
+
+##############################################################
+#						ARTICLES
+##############################################################
+def getArticles(fpath, code):
+	f = open(fpath, encoding = code)
+	text_string = f.read()
+	f.close()
+
+	article_segments = re.split('<h3>', text_string)
+	articles = []
+
+	for art in article_segments:
+		soup = BeautifulSoup(art, 'lxml')
+		text = soup.get_text()
+		articles.append(text)
+
+	return articles
+
+# Initialize dictionary of topics
+def createDictionary(listTopics):
+	topics = {}
+	for topic in listTopics:
+		topics[topic] = 0
+	return topics
+
+# Parameters: Dictionary of topics, article
+def getFrecuency(listTopics, article):
+	topics = createDictionary(listTopics)
+
+	for token in article:
+		if token in topics:
+			topics[token] = topics[token] + 1
+
+	return topics
+
+# Parameters: Dictionary of frecuency for each topic
+def sumFrecuency(dicFrecuency):
+	sum = 0
+	for frecuency in dicFrecuency:
+		sum = sum + dicFrecuency[frecuency]
+	return sum
+
+def initializeTable(topics, lenArticles):
+	table = []
+	for i in range(1):
+		table.append([0] * (lenArticles + 1))
+
+	for i in range(1, lenArticles + 1):
+		table[0][i] = i
+
+	for i in range(0, len(topics)):
+		aux = []
+		for j in range(0, lenArticles + 1):
+			aux.append(0)
+		aux[0] = topics[i][0]
+		table.append(aux)
+
+	return table
+
+def printTable(table):
+	for t in table:
+		print(t)
 
 ##############################################################
 #						TAGGING
@@ -97,13 +160,12 @@ def tag(fname, text):
 ##############################################################
 #				     		LEMMAS
 ##############################################################
-def getWords(fpath, code):
-	f = open(fpath, encoding = code) #Cod: utf-8, latin-1
-	text = f.read()
-	f.close()
-
-	words = re.sub(" ", " ",  text).split()
-	return words
+def getWord(word):
+	cleanWord = ''
+	for char in word:
+		if char != '#':
+			cleanWord += char
+	return cleanWord
 
 def getTag(word):
 	c = 'v'
@@ -134,39 +196,16 @@ def lemmatizeText(tokens, lemmas):
 		text.append(aux)
 	return text
 
-##############################################################
-#					MOST COMMON WORDS
-##############################################################
-# Parameter: vocabulary and tokens
-# Return: dictionary with frecuency of each word in vocabulary
-def getFrecuency(vocabulary, tokens):
-	mostCommon = {}
-	for v in vocabulary:
-		mostCommon[v] = 0
+def getWords(fpath, code):
+	f = open(fpath, encoding = code) #Cod: utf-8, latin-1
+	text = f.read()
+	f.close()
 
-	for token in tokens:
-		mostCommon[token] = mostCommon[token] + 1
-	
-	return mostCommon
+	words = re.sub(" ", " ",  text).split()
+	# words = text.words(fname)
+	# words = list(words) #Convertir a lista de palabras
+	return words
 
-##############################################################
-#							SORT
-##############################################################
-# Parameters: dictionary
-# Return: list of elements sorted Highest to Lower
-def sortHL(dic):
-	l = list()
-	for key, val in dic.items():
-		l.append((val, key))
-	l.sort(reverse = True)
-	return l
-
-def filtred(similitud, word):
-	sim = {}
-	for t in similitud:
-		if t[1] == word:
-			sim[t] = similitud[t]
-	return sim
 ##############################################################
 #						CREATE FILE
 ##############################################################
@@ -202,21 +241,6 @@ def printDictionary(dic, n):
 		i = i + 1
 		if i > n:
 			break
-
-##############################################################
-#							PKL
-##############################################################
-def makePKL(fname, aux):
-	output = open(fname, 'wb')
-	dump(aux, output, -1)
-	output.close()
-
-def getPKL(fname):
-	input = open(fname, 'rb')
-	aux = load(input)
-	input.close()
-	return aux
-
 ################################################
 ################################################
 ################################################
@@ -224,65 +248,77 @@ def getPKL(fname):
 # Get Tokens by Generate.txt to create dictionary of lemmas
 fpathLemmas = '/Users/abiga/Desktop/AbiiSnn/GitHub/Natural-Language-Processing/Normalize/generateClean.txt'
 fpathName = 'generateClean.txt'
+nameFile = '/Users/abiga/Desktop/AbiiSnn/GitHub/Natural-Language-Processing/Normalize/similitudLemma.txt'
 code = 'ISO-8859-1'
 textLemmas = getWords(fpathLemmas, code)
-print(textLemmas[:20])
+# print(textLemmas[:20])
 
 # Get dictionary of tuples of 
 lemmas = {}
 lemmas = createDicLemmas(textLemmas)
-
 print("dictionary of lemmas:")
 lemmas[("abaláncenosla", "v")] # Check the first
 lemmas[("zutano", "n")]		   # Check the last 
 lemmas[("acercarnos", "v")]
-printDictionary(lemmas, 10)
+# printDictionary(lemmas, 10)
 
-# Read file of corpus
+# Get articles
 fpath = '/Users/abiga/Desktop/AbiiSnn/GitHub/Natural-Language-Processing/corpus/e961024.htm'
 code = 'utf-8'
-textSource = getText(fpath, code) 
-tokensHtml = getTokens(textSource) #Get tokens with out html tags
-# print("Text with tags, stopwords and punctuation:")
-print(tokensHtml[:10])
+articles = getArticles(fpath, code)
+
+print(articles[2:3])
 
 # Tagging
 fcombinedTagger = '/Users/abiga/Desktop/AbiiSnn/GitHub/Natural-Language-Processing/pkl/combined_tagger.pkl'
 #make_and_save_combined_tagger(fcombinedTagger)
-textTagged = tag(fcombinedTagger, tokensHtml)
-print(textTagged[:10])
+articlesTag = []
+for i in range(0, len(articles)):
+	aux = getTokens(articles[i])
+	auxTag = tag(fcombinedTagger, aux)
+	articlesTag.append(auxTag)
 
-# Text in list with lists of size 2
-cleanTokens = getCleanTokensTags(textTagged)
-# print("text with tags corrected:")
-print(cleanTokens[:10])
+print(articlesTag[:2])
+
+articleCleanTokens = []
+for i in range(0, len(articlesTag)):
+	aux = getCleanTokensTags(articlesTag[i])
+	articleCleanTokens.append(aux)
+
+print(articleCleanTokens[:2])
 
 # Remove Stopwords
 language = 'spanish'
-tokens = removeStopwords(cleanTokens, language)
-# print("Text without stopwords:")
-print(tokens[:100])
+articleClean = []
+for i in range(0, len(articleCleanTokens)):
+	aux = removeStopwords(articleCleanTokens[i], language)
+	articleClean.append(aux)
+
+print(articleClean[:2])
 
 # Lemmatize text
-tokens = lemmatizeText(tokens, lemmas)
-print(tokens[:100])
+tokens = []
+for i in range(0, len(articleClean)):
+	aux = lemmatizeText(articleClean[i], lemmas)
+	tokens.append(aux)
 
-# Get vocabulary of lemmas
-vocabulary = getVocabulary(tokens)
-print("vocabulary:")
-print(vocabulary[:10])
+print(tokens[:2])
 
-mostCommon = {}
-mostCommon = getFrecuency(vocabulary, tokens)
-printDictionary(mostCommon, 10)
+t = [('crisis', 'n'), ('privatización', 'n'), ('contaminación', 'n'), ('política', 'n'), ('economía', 'n'), ('tecnología', 'n'), ('televisa', 'n')]
 
-fil = {}
-fil = filtred(mostCommon, 'n')
+table = initializeTable(t, len(tokens))
+printTable(table)
+j = 1
+for article in tokens:
+	dicFrecuency = getFrecuency(t, article)
+	total = sumFrecuency(dicFrecuency)
+	i = 1
+	for frecuency in dicFrecuency:
+		ans = 0
+		if total != 0:
+			ans = dicFrecuency[frecuency] / total
+		table[i][j] = ans * 100
+		i = i + 1
+	j = j + 1
 
-l = []
-l = sortHL(fil)
-print(l[:10])
-
-nWord = "mostCommonWords.txt"
-nameFile = '/Users/abiga/Desktop/AbiiSnn/GitHub/Natural-Language-Processing/Practice/13/'
-createFileDic(nameFile + nWord, l)
+printTable(table)

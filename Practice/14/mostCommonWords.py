@@ -156,7 +156,8 @@ def getTFIDF(vocabulary, frecuency, k, sizeText):
 		mostCommon[v] = 0
 
 	for token in vocabulary:
-		mostCommon[token] = (((k + 1) * frecuency[token]) / (frecuency[token] + k)) * math.log((sizeText / frecuency[x]))
+		# x = frecuency[token] / sizeText
+		mostCommon[token] = (((k + 1) * x) / (x + k)) * math.log((sizeText / x))
 	return mostCommon
 
 ##############################################################
@@ -171,6 +172,12 @@ def sortHL(dic):
 	l.sort(reverse = True)
 	return l
 
+def filtred(similitud, word):
+	sim = {}
+	for t in similitud:
+		if t[1] == word:
+			sim[t] = similitud[t]
+	return sim
 ##############################################################
 #						CREATE FILE
 ##############################################################
@@ -273,19 +280,22 @@ print(tokens[:100])
 
 # Get vocabulary of lemmas
 vocabulary = getVocabulary(tokens)
-print("vocabulary:")
-print(vocabulary[:10])
+# print("vocabulary:")
+# print(vocabulary[:10])
 
 frecuency = {}
 frecuency = getFrecuency(vocabulary, tokens)
 
 k = 1.2
+mostCommon = {}
 mostCommon = getTFIDF(vocabulary, frecuency, k, len(tokens))
+# printDictionary(mostCommon, 10)
 
-printDictionary(mostCommon, 10)
+fil = {}
+fil = filtred(mostCommon, 'n')
 
 l = []
-l = sortHL(mostCommon)
+l = sortHL(fil)
 print(l[:10])
 
 nWord = "mostCommonWords.txt"

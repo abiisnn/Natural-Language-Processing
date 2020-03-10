@@ -109,5 +109,16 @@ HOMEWORK:
 	- Mostrar en forma de Tabla
 	https://python-para-impacientes.blogspot.com/2017/01/tablas-con-estilo-con-tabulate.html
 
+	Sacar frecuencia de cada palabra, dividir entre el número de palabras (7), hacer tabla.
+					art 1	art2	art3 ... artN
+	crisis 
+	privatización
+	contaminación
+	política
+	economia
+	tecnología
+	televisa
+
 	Heuristics: Conocimiento común. No es un modelo matematico, es un simple conocimiento que tenemos.
 	Por ejemplo, favorecer palabras en los títulos.
+----------------------------------------
