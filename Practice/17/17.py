@@ -171,13 +171,8 @@ auxY = getY(nameFile)
 Y = auxY.transpose()
 
 matrixTestN = readTest(nameFile) #Testing set
-
-# printMatrix(matrixN, 5)
-# printMatrix(matrixTestN, 5)
-
 auxY = getYTest(nameFile) 
 YTest = auxY.transpose()
-
 
 #Feature scaling
 matrixN = featureScaling(matrixN)
@@ -212,23 +207,36 @@ for ite in range(0, 1000):
         print("Iteration:", ite, "Cost Function value:", price)
 
 
+
+print(YTest) # m x 1
 #H(theta) = thetaT * matrix
-thetaT = theta.transpose() # 1 x n
-H_theta = thetaT.dot(matrixTest) # 1 x m
-
-#Get Cost Function
-price = sumaCostFunction(H_theta, YTest) 
-print("Cost Function initial value:", price)
-# tempTheta = initializeTheta(len(matrixTest))
-learningRate = 0.1
-print("")
-print("TESTING SET:")
-for ite in range(0, 1000):
-    tempTheta = gradientDescent(theta, H_theta, YTest, matrixTest, learningRate)
-    theta = tempTheta
-    thetaT = tempTheta.transpose()
-    H_theta = thetaT.dot(matrixTest)
-    price = sumaCostFunction(H_theta, YTest)
-    if((ite % 50) == 0):
-        print("Iteration:", ite, "Cost Function value:", price)
-
+thetaT = theta.transpose() #Now, this has been trained 1 x m
+print(thetaT)
+# matrixTest 19 x m
+#H_theta = thetaT.dot(matrixTest) #Get H(theta)
+#price = sumaCostFunction(H_theta, YTest) #Get Cost Function
+print("TESTING SET, first 50 elements:")
+matrixTest = matrixTest.transpose()
+print(matrixTest)
+Ytest = list()
+for i in YTest:
+    for j in i:
+        Ytest.append(j)
+print(Ytest)
+type(Ytest)
+j = 0
+for i in range(0, 50):
+    aux = np.array(matrixTest[i]) # m x 1
+    matrixIndexAux = list()
+    for i in aux:
+        listAuxiliar = list()
+        listAuxiliar.append(i)
+        lA = np.array(listAuxiliar)
+        matrixIndexAux.append(lA)
+    matrixIndexTest = np.array(matrixIndexAux)
+    # print(matrixIndexTest) # m x 1
+    prediction = thetaT.dot(matrixIndexTest)
+    print("Prediction:", prediction[0][0], "Real:", Ytest[j])
+    j = j + 1
+    # price = sumaCostFunction(H_theta, YTest)
+    # print("Cost Function value:", price)    
