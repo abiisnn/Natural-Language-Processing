@@ -14,3 +14,7 @@
 14. Most frecuent words with TF * IDF.
 15. List of titles and subtitles of a corpus by Excelsior.
 16. Computing topic Coverage.
+17. Linear Regression
+18. Logistic Regression
+19. Linear Regression (Library)
+20. Logistic Regression (Library)

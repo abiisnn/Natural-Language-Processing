@@ -206,15 +206,11 @@ for ite in range(0, 1000):
     if((ite % 50) == 0):
         print("Iteration:", ite, "Cost Function value:", price)
 
-
-
 print(YTest) # m x 1
 #H(theta) = thetaT * matrix
 thetaT = theta.transpose() #Now, this has been trained 1 x m
 print(thetaT)
-# matrixTest 19 x m
-#H_theta = thetaT.dot(matrixTest) #Get H(theta)
-#price = sumaCostFunction(H_theta, YTest) #Get Cost Function
+
 print("TESTING SET, first 50 elements:")
 matrixTest = matrixTest.transpose()
 print(matrixTest)
