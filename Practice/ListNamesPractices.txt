@@ -16,5 +16,9 @@
 16. Computing topic Coverage.
 17. Linear Regression
 18. Logistic Regression
-19. Linear Regression (Library)
-20. Logistic Regression (Library)
+19. Linear Regression (With python Library)
+20. Logistic Regression (With python Library)
+21. ----
+22. Logistic Regresssion and confusion matrix
+23. K-means Algorithm
+24. Ordinal Regression (With mord Library)

@@ -1,0 +1,7 @@
+disco n
+canción n
+grupo n
+voz n
+rock n
+guitarra n
+bateria n
