@@ -1,6 +1,7 @@
 import nltk
 import re
 import math
+import glob
 from bs4 import BeautifulSoup
 from pickle import dump, load
 from nltk.corpus import cess_esp
@@ -14,7 +15,7 @@ def getElement(s):
 	word = ''
 	j = s.find('">')
 	j = j + 3
-	while(s[j] != '<'):
+	while(ord(s[j]) != 9):
 		word += s[j]
 		j = j + 1
 	word = word[:len(word)-1]	
